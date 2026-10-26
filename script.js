@@ -1,1 +1,27 @@
-const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in-view')}),{threshold:.12});document.querySelectorAll('.section,.project,.closing').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(22px)';el.style.transition='opacity .7s ease, transform .7s ease';io.observe(el)});const style=document.createElement('style');style.textContent='.in-view{opacity:1!important;transform:none!important}';document.head.appendChild(style);
+const root = document.documentElement;
+const themeButton = document.querySelector('.theme-toggle');
+const setTheme = (theme) => {
+  root.dataset.theme = theme;
+  localStorage.setItem('theme', theme);
+  if (themeButton) {
+    const light = theme === 'light';
+    themeButton.setAttribute('aria-pressed', String(light));
+    themeButton.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+  }
+};
+setTheme(root.dataset.theme || 'dark');
+themeButton?.addEventListener('click', () => setTheme(root.dataset.theme === 'light' ? 'dark' : 'light'));
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const revealItems = document.querySelectorAll('.section,.project,.closing');
+if (reduceMotion) {
+  revealItems.forEach((element) => { element.classList.add('in-view'); });
+} else {
+  const io = new IntersectionObserver((entries) => entries.forEach((entry) => {
+    if (entry.isIntersecting) entry.target.classList.add('in-view');
+  }), { threshold: 0.12 });
+  revealItems.forEach((element) => {
+    element.classList.add('reveal');
+    io.observe(element);
+  });
+}
